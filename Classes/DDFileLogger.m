@@ -291,7 +291,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
             NSRange range = NSMakeRange(appName.length, lengthOfMiddle);
 
             NSString *middle = [fileName substringWithRange:range];
-            NSArray *components = [middle componentsSeparatedByString:@" "];
+            NSArray *components = [middle componentsSeparatedByString:@"_"];
 
             // When creating logfile if there is existing file with the same name, we append attemp number at the end.
             // Thats why here we can have three or four components. For details see createNewLogFile method.
@@ -301,7 +301,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
             // or
             //     "", "2013-12-03", "17-14", "1"
             if (components.count == 3 || components.count == 4) {
-                NSString *dateString = [NSString stringWithFormat:@"%@ %@", components[1], components[2]];
+                NSString *dateString = [NSString stringWithFormat:@"%@_%@", components[1], components[2]];
                 NSDateFormatter *dateFormatter = [self logFileDateFormatter];
 
                 NSDate *date = [dateFormatter dateFromString:dateString];
@@ -319,7 +319,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 - (NSDateFormatter *)logFileDateFormatter {
     NSMutableDictionary *dictionary = [[NSThread currentThread]
                                        threadDictionary];
-    NSString *dateFormat = @"yyyy'-'MM'-'dd' 'HH'-'mm'";
+    NSString *dateFormat = @"yyyy'-'MM'-'dd'_'HH'-'mm'";
     NSString *key = [NSString stringWithFormat:@"logFileDateFormatter.%@", dateFormat];
     NSDateFormatter *dateFormatter = dictionary[key];
 
@@ -430,7 +430,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     NSDateFormatter *dateFormatter = [self logFileDateFormatter];
     NSString *formattedDate = [dateFormatter stringFromDate:[NSDate date]];
 
-    return [NSString stringWithFormat:@"%@ %@.log", appName, formattedDate];
+    return [NSString stringWithFormat:@"%@_%@.log", appName, formattedDate];
 }
 
 - (NSString *)createNewLogFile {
@@ -446,7 +446,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
             NSString *extension = [actualFileName pathExtension];
 
             actualFileName = [actualFileName stringByDeletingPathExtension];
-            actualFileName = [actualFileName stringByAppendingFormat:@" %lu", (unsigned long)attempt];
+            actualFileName = [actualFileName stringByAppendingFormat:@"_%lu", (unsigned long)attempt];
 
             if (extension.length) {
                 actualFileName = [actualFileName stringByAppendingPathExtension:extension];
