@@ -535,17 +535,29 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
         } else {
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setFormatterBehavior:NSDateFormatterBehavior10_4]; // 10.4+ style
-            [_dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ss:SSS"];
+            [_dateFormatter setTimeZone:[NSTimeZone defaultTimeZone]];
+            [_dateFormatter setDateFormat:@"MM/dd HH:mm:ss:SSS"];
         }
     }
 
     return self;
 }
 
+static NSString *flagDescription(DDLogFlag flag) {
+    switch (flag) {
+        case DDLogFlagError:    return @"E";
+        case DDLogFlagWarning:  return @"W";
+        case DDLogFlagInfo:     return @"I";
+        case DDLogFlagDebug:    return @"D";
+        case DDLogFlagVerbose:  return @"V";
+        default:                return @" ";
+    }
+}
 - (NSString *)formatLogMessage:(DDLogMessage *)logMessage {
     NSString *dateAndTime = [_dateFormatter stringFromDate:(logMessage->_timestamp)];
-
-    return [NSString stringWithFormat:@"%@  %@", dateAndTime, logMessage->_message];
+    NSString *flag = flagDescription(logMessage->_flag);
+    NSString *file = [NSString stringWithFormat:@"%@:%u", logMessage->_fileName, (unsigned)logMessage->_line];
+    return [NSString stringWithFormat:@"%@ %@ %@  %@", dateAndTime, flag, file, logMessage->_message];
 }
 
 @end
