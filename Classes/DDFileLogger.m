@@ -56,6 +56,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface DDLogFileManagerDefault () {
+    NSString *_logFileExtension;
     NSUInteger _maximumNumberOfLogFiles;
     unsigned long long _logFilesDiskQuota;
     NSString *_logsDirectory;
@@ -81,6 +82,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 
 - (instancetype)initWithLogsDirectory:(NSString *)aLogsDirectory {
     if ((self = [super init])) {
+        _logFileExtension = @".log.txt";
         _maximumNumberOfLogFiles = kDDDefaultLogMaxNumLogFiles;
         _logFilesDiskQuota = kDDDefaultLogFilesDiskQuota;
 
@@ -280,11 +282,11 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     NSString *appName = [self applicationName];
 
     BOOL hasProperPrefix = [fileName hasPrefix:appName];
-    BOOL hasProperSuffix = [fileName hasSuffix:@".log"];
+    BOOL hasProperSuffix = [fileName hasSuffix:_logFileExtension];
     BOOL hasProperDate = NO;
 
     if (hasProperPrefix && hasProperSuffix) {
-        NSUInteger lengthOfMiddle = fileName.length - appName.length - @".log".length;
+        NSUInteger lengthOfMiddle = fileName.length - appName.length - _logFileExtension.length;
 
         // Date string should have at least 16 characters - " 2013-12-03 17-14"
         if (lengthOfMiddle >= 17) {
@@ -430,7 +432,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     NSDateFormatter *dateFormatter = [self logFileDateFormatter];
     NSString *formattedDate = [dateFormatter stringFromDate:[NSDate date]];
 
-    return [NSString stringWithFormat:@"%@_%@.log", appName, formattedDate];
+    return [NSString stringWithFormat:@"%@_%@%@", appName, formattedDate, _logFileExtension];
 }
 
 - (NSString *)createNewLogFile {
@@ -496,7 +498,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
-        _appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+        _appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 
         if (!_appName) {
             _appName = [[NSProcessInfo processInfo] processName];
